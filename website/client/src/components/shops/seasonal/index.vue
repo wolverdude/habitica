@@ -391,15 +391,15 @@ import getOfficialPinnedItems from '@/../../common/script/libs/getOfficialPinned
 import i18n from '@/../../common/script/i18n';
 
 import shops from '@/../../common/script/libs/shops';
+import SelectTranslatedArray from '@/components/tasks/modal-controls/selectTranslatedArray';
 import FilterSidebar from '@/components/ui/filterSidebar';
 import FilterGroup from '@/components/ui/filterGroup';
-import SelectTranslatedArray from '@/components/tasks/modal-controls/selectTranslatedArray';
 
 export default {
   components: {
+    SelectTranslatedArray,
     FilterGroup,
     FilterSidebar,
-    SelectTranslatedArray,
     Checkbox,
     PinBadge,
     ShopItem,

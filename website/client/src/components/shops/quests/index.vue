@@ -478,9 +478,9 @@ import SelectTranslatedArray from '@/components/tasks/modal-controls/selectTrans
 
 export default {
   components: {
+    SelectTranslatedArray,
     FilterGroup,
     FilterSidebar,
-    SelectTranslatedArray,
     ShopItem,
     Item,
     CountBadge,

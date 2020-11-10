@@ -300,10 +300,10 @@ import SelectTranslatedArray from '@/components/tasks/modal-controls/selectTrans
 
 export default {
   components: {
+    SelectTranslatedArray,
     Checkbox,
     FilterGroup,
     FilterSidebar,
-    SelectTranslatedArray,
     ShopItem,
     Item,
     ItemRows,

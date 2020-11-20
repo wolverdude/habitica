@@ -25,44 +25,46 @@
       </div>
     </div>
     <div
-      v-if="onPendingQuest && !onActiveQuest"
-      class="row quest-active-section"
+      v-if="user.party.quest && user.party.quest.RSVPNeeded"
+      class="quest-active-section quest-invite"
     >
-      <div class="col-2">
+      <span>{{ $t('wouldYouParticipate') }}</span>
+      <div class="buttons">
+        <button
+          class="btn btn-primary accept"
+          @click="questAccept(group._id)"
+        >
+          {{ $t('accept') }}
+        </button>
+        <button
+          class="btn btn-primary reject"
+          @click="questReject(group._id)"
+        >
+          {{ $t('reject') }}
+        </button>
+      </div>
+    </div>
+    <div
+      v-if="onPendingQuest && !onActiveQuest"
+      class="quest-active-section quest-pending-section"
+    >
+      <div class="titles">
+        <strong>{{ questData.text() }} </strong>
+        <p class="members">{{ acceptedCount }} / {{ group.memberCount }} Members accepted</p>
+      </div>
+      <div class="quest-icon">
         <div
           class="quest"
           :class="`inventory_quest_scroll_${questData.key}`"
         ></div>
       </div>
-      <div class="col-6 titles">
-        <strong>{{ questData.text() }}</strong>
-        <p>{{ acceptedCount }} / {{ group.memberCount }}</p>
-      </div>
-      <div class="col-4">
-        <button
-          class="btn btn-secondary"
-          @click="openQuestDetails()"
-        >
-          {{ $t('details') }}
-        </button>
-      </div>
     </div>
-    <div
-      v-if="user.party.quest && user.party.quest.RSVPNeeded"
-      class="row quest-active-section quest-invite"
-    >
-      <span>{{ $t('wouldYouParticipate') }}</span>
+    <div>
       <button
-        class="btn btn-primary accept"
-        @click="questAccept(group._id)"
+        class="btn btn-secondary full-width"
+        @click="openQuestDetails()"
       >
-        {{ $t('accept') }}
-      </button>
-      <button
-        class="btn btn-primary reject"
-        @click="questReject(group._id)"
-      >
-        {{ $t('reject') }}
+        {{ $t('details') }}
       </button>
     </div>
     <div
@@ -266,6 +268,40 @@
     }
   }
 
+  .quest-pending-section {
+    display: flex;
+    margin-bottom: 0.5rem;
+
+    .titles {
+      flex: 1;
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      line-height: 1.33;
+
+      strong {
+        min-height: 1rem;
+        font-weight: bold;
+        color: $gray-100;
+        margin-bottom: 0.25rem  ;
+      }
+
+      .members {
+        min-height: 1rem;
+        color: $blue-10;
+        margin: 0;
+      }
+    }
+
+    .quest-icon {
+      width: 4.25rem;
+      height: 4.25rem;
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
   .quest-active-section {
     .titles {
         padding-top: .5em;
@@ -301,11 +337,17 @@
     background-color: #2995cd;
     color: #fff;
     padding: 1em;
+    display: flex;
 
     span {
       margin-top: .3em;
       font-size: 14px;
       font-weight: bold;
+      flex: 1;
+    }
+
+    .buttons {
+
     }
 
     .accept, .reject {

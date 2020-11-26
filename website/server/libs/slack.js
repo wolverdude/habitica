@@ -10,20 +10,19 @@ const SLACK_FLAGGING_FOOTER_LINK = nconf.get('SLACK_FLAGGING_FOOTER_LINK');
 const SLACK_SUBSCRIPTIONS_URL = nconf.get('SLACK_SUBSCRIPTIONS_URL');
 const BASE_URL = nconf.get('BASE_URL');
 const IS_PRODUCTION = nconf.get('IS_PROD');
+const IS_TEST = nconf.get('IS_TEST');
 
-const SKIP_FLAG_METHODS = IS_PRODUCTION && !SLACK_FLAGGING_URL;
-const SKIP_SUB_METHOD = IS_PRODUCTION && !SLACK_SUBSCRIPTIONS_URL;
+const SKIP_FLAG_METHODS = (IS_PRODUCTION || IS_TEST) && !SLACK_FLAGGING_URL;
+const SKIP_SUB_METHOD = (IS_PRODUCTION || IS_TEST) && !SLACK_SUBSCRIPTIONS_URL;
 
 let flagSlack;
 let subscriptionSlack;
 
 try {
-  flagSlack = new IncomingWebhook(SLACK_FLAGGING_URL);
-  subscriptionSlack = new IncomingWebhook(SLACK_SUBSCRIPTIONS_URL);
-} catch (err) {
-  logger.error(err, 'Error setting up Slack.');
-
-  if (!IS_PRODUCTION) {
+  if (IS_TEST || IS_PRODUCTION) {
+    flagSlack = new IncomingWebhook(SLACK_FLAGGING_URL);
+    subscriptionSlack = new IncomingWebhook(SLACK_SUBSCRIPTIONS_URL);
+  } else {
     subscriptionSlack = {
       // async so that it works like the original Slack send method
       async send (data) {
@@ -32,6 +31,8 @@ try {
     };
     flagSlack = subscriptionSlack;
   }
+} catch (err) {
+  logger.error(err, 'Error setting up Slack.');
 }
 
 /**

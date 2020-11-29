@@ -6,7 +6,7 @@
     >
       <div class="col-12 text-center">
         <div
-          class="svg-icon"
+          class="svg-icon quest-icon color"
           v-html="icons.questIcon"
         ></div>
         <h4 v-once>
@@ -59,13 +59,29 @@
         ></div>
       </div>
     </div>
-    <div>
+    <div v-if="onPendingQuest || onActiveQuest">
       <button
-        class="btn btn-secondary full-width"
+        class="btn btn-secondary full-width mb-1"
         @click="openQuestDetails()"
       >
         {{ $t('details') }}
       </button>
+    </div>
+    <div v-if="userIsQuestLeader && !onActiveQuest">
+      <button
+        class="btn btn-success full-width"
+        @click="startQuest()"
+      >
+        {{ $t('startQuest') }}
+      </button>
+    </div>
+    <div v-if="userIsQuestLeader && !onActiveQuest">
+      <a
+        class="abandon-quest text-center full-width"
+        @click="abandonQuest()"
+      >
+        {{ $t('abandonQuest') }}
+      </a>
     </div>
     <div
       v-if="!onPendingQuest && onActiveQuest"
@@ -250,21 +266,25 @@
 
   .no-quest-section {
     padding: 2em;
-    color: $gray-300;
 
     h4 {
-      color: $gray-300;
+      margin-bottom: 0;
     }
 
     p {
-      margin-bottom: 2em;
+      margin-bottom: 1em;
+      color: $gray-100;
+      font-size: 0.75rem;
+      line-height: 1.33;
     }
 
-    .svg-icon {
-      height: 30px;
-      width: 30px;
-      margin: 0 auto;
-      margin-bottom: 2em;
+    .quest-icon {
+      width: 1.125rem;
+      height: 1.25rem;
+      margin: 0 auto 0.5em;
+      object-fit: contain;
+      border-radius: 2px;
+      color: $gray-200;
     }
   }
 
@@ -369,6 +389,15 @@
       background-color: #f74e52;
     }
   }
+
+  .abandon-quest {
+    font-size: 0.875rem;
+    line-height: 1.71;
+    color: $maroon-50;
+    width: 100%;
+    display: block;
+    margin-top: 1rem;
+  }
 </style>
 
 <script>
@@ -379,8 +408,10 @@ import percent from '@/../../common/script/libs/percent';
 import sidebarSection from '../sidebarSection';
 
 import questIcon from '@/assets/svg/quest.svg';
+import questActionsMixin from '@/components/groups/questActions.mixin';
 
 export default {
+  mixins: [questActionsMixin],
   components: {
     sidebarSection,
   },
@@ -398,6 +429,10 @@ export default {
       if (!this.group.quest || !this.group.quest.members) return false;
       return Boolean(this.group.quest.members[this.user._id]);
     },
+    userIsQuestLeader () {
+      if (!this.group.quest) return false;
+      return this.group.quest.leader === this.user._id;
+    },
     onPendingQuest () {
       return Boolean(this.group.quest.key) && !this.group.quest.active;
     },
@@ -413,9 +448,8 @@ export default {
     },
     canEditQuest () {
       if (!this.group.quest) return false;
-      const isQuestLeader = this.group.quest.leader === this.user._id;
       const isPartyLeader = this.group.leader._id === this.user._id;
-      return isQuestLeader || isPartyLeader;
+      return this.userIsQuestLeader || isPartyLeader;
     },
     isMemberOfPendingQuest () {
       const userid = this.user._id;
@@ -472,6 +506,12 @@ export default {
     async questReject (partyId) {
       const quest = await this.$store.dispatch('quests:sendAction', { groupId: partyId, action: 'quests/reject' });
       this.user.party.quest = quest;
+    },
+    startQuest () {
+      this.questActionsConfirmQuest();
+    },
+    abandonQuest () {
+      this.questActionsCancelQuest();
     },
   },
 };

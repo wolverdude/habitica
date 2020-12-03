@@ -140,6 +140,7 @@ export const TaskSchema = new Schema({
       approvingUser: { $type: String, ref: 'User', validate: [v => validator.isUUID(v), 'Invalid uuid for team approving user.'] },
       requested: { $type: Boolean },
       requestedDate: { $type: Date },
+      requestingUsers: [{ $type: String, ref: 'User', validate: [v => validator.isUUID(v), 'Invalid uuid for team user requesting approval.'] }],
     },
     sharedCompletion: {
       $type: String,

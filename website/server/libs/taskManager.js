@@ -407,6 +407,9 @@ async function scoreTask (user, task, direction, req, res) {
 
       task.group.approval.requested = true;
       task.group.approval.requestedDate = new Date();
+      if (task.group.approval.requestingUsers.indexOf(user._id) === -1) {
+        task.group.approval.requestingUsers.push(user._id);
+      }
 
       const managers = await User.find({ _id: managerIds }, 'notifications preferences').exec(); // Use this method so we can get access to notifications
 

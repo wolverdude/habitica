@@ -13,8 +13,10 @@ import logger from '../../../../../../website/server/libs/logger';
 
 const { i18n } = common;
 
-describe('Stripe - Webhooks', () => {
-  const stripe = stripeModule('test');
+xdescribe('Stripe - Webhooks', () => {
+  const stripe = stripeModule('test', {
+    apiVersion: '2020-08-27',
+  });
 
   describe('all events', () => {
     const eventType = 'account.updated';

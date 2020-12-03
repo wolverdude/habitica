@@ -1,67 +1,75 @@
 <template>
   <div v-if="user.stats.lvl > 10">
-    <div
-      v-if="potionClickMode"
-      ref="clickPotionInfo"
-      class="dragInfo mouse"
-    >
-      <div class="spell col-12 row">
-        <div class="col-8 details">
-          <p class="title">
-            {{ spell.text() }}
-          </p>
+    <div v-if="potionClickMode" ref="clickPotionInfo" class="dragInfo mouse">
+      <div class="spell">
+        <div class='spell-border'>
+          <div class="mana">
+            <div class="img" :class="`shop_${spell.key} shop-sprite item-img`"></div>
+          </div>
+        </div>
+        <div class="details">
           <p class="notes">
-            {{ `Click on a ${spell.target} to cast!` }}
+            {{ `Select a ${spell.target}` }}
           </p>
           <!-- @TODO make that translatable-->
         </div>
-        <div class="col-4 mana">
-          <div
-            class="img"
-            :class="`shop_${spell.key} shop-sprite item-img`"
-          ></div>
-        </div>
       </div>
     </div>
-    <div class="drawer-wrapper d-flex justify-content-center">
+    <div class="drawer-wrapper">
       <drawer
-        v-if="user.stats.class && !user.preferences.disableClasses"
-        v-mousePosition="30"
-        :title="$t('skillsTitle')"
-        :open-status="openStatus"
-        @mouseMoved="mouseMoved($event)"
-        @toggled="drawerToggled"
-      >
+      v-if="user.stats.class && !user.preferences.disableClasses"
+      v-mousePosition="30"
+      :title="`${this.user.stats.class.charAt(0).toUpperCase()}${this.user.stats.class.slice(1)}
+      Skills`"
+      :open-status="openStatus" @mouseMoved="mouseMoved($event)"
+      @toggled="drawerToggled">
         <div slot="drawer-slider">
-          <div class="container spell-container">
-            <div class="row">
-              <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-              <div
-                v-for="(skill, key) in spells[user.stats.class]"
-                v-if="user.stats.lvl >= skill.lvl"
-                :key="key"
-                v-b-popover.hover.auto="skillNotes(skill)"
-                class="col-12 col-md-3"
-                @click="!spellDisabled(key) ? castStart(skill) : null"
-              >
-                <!-- eslint-enable vue/no-use-v-if-with-v-for -->
-                <div
-                  class="spell col-12 row"
-                  :class="{'disabled': spellDisabled(key)}"
-                >
-                  <div class="col-8 details">
-                    <div
-                      class="img"
-                      :class="`shop_${skill.key} shop-sprite item-img`"
-                    ></div>
-                    <span class="title">{{ skill.text() }}</span>
+          <div class="spell-container">
+            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+            <div
+            v-for="(skill, key) in spells[user.stats.class]"
+            :key="key" :id="`spell_${skill.key}`"
+            @click="!spellDisabled(key) ? castStart(skill) : null">
+              <b-popover
+              :target="`spell_${skill.key}`"
+              triggers="hover"
+              placement="top"
+              custom-class="popover-class">
+                <div class="popover-wrapper">
+                  <div class="popover-title">
+                    <div class="popover-title-text">{{skill.text()}}</div>
+                    <div class="popover-mana">
+                      <div class="popover-svg-icon" v-html="icons.mana"></div>
+                      <div class="popover-mana-count">{{skill.mana}}</div>
+                    </div>
                   </div>
-                  <div class="col-4 mana">
+                  <div class="popover-description">
+                    {{skillNotes(skill)}}
+                  </div>
+                </div>
+              </b-popover>
+              <!-- eslint-enable vue/no-use-v-if-with-v-for -->
+              <div class='spell-border'
+              :class="{ disabled: spellDisabled(key) || user.stats.lvl<skill.lvl }">
+                <div class="spell"
+                :class="{ disabled: spellDisabled(key) || user.stats.lvl<skill.lvl }">
+                  <div class="details">
+                    <div class="img" :class="`shop_${skill.key} shop-sprite item-img`"></div>
+                  </div>
+                  <div class="mana" v-if="user.stats.lvl<skill.lvl">
+                    <div class="mana-text level">
+                      <div>Level {{ skill.lvl }}</div>
+                    </div>
+                  </div>
+                  <div class="mana" v-else-if="spellDisabled(key)===true">
                     <div class="mana-text">
-                      <div
-                        class="svg-icon"
-                        v-html="icons.mana"
-                      ></div>
+                      <div class="svg-icon" v-html="icons.mana"></div>
+                      <div>{{ skill.mana }}</div>
+                    </div>
+                  </div>
+                  <div class="mana" v-else>
+                    <div class="mana-text">
+                      <div class="svg-icon" v-html="icons.mana"></div>
                       <div>{{ skill.mana }}</div>
                     </div>
                   </div>
@@ -76,138 +84,251 @@
 </template>
 
 <style lang="scss" scoped>
-  .drawer-wrapper {
-    width: 100vw;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 19;
+.drawer-wrapper {
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 19;
+  display: flex;
+  justify-content: center;
 
-    .drawer-container {
-      left: auto !important;
-      right: auto !important;
-      min-width: 60%;
-    }
+  .drawer-container {
+    left: auto !important;
+    right: auto !important;
+    min-width: 25.5rem;
   }
+}
 
-  .drawer-slider {
-    margin-top: 1em;
-  }
-
-  .spell-container {
-    margin-top: .5em;
-    white-space: initial;
-  }
-
-  .spell:hover:not(.disabled) {
-    cursor: pointer;
-    border: solid 2px #50b5e9;
-  }
-
-  .spell {
-    background: #ffffff;
-    border: solid 2px transparent;
-    margin-bottom: 1em;
-    box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
-    border-radius: 1000px;
-    color: #4e4a57;
-    padding-right: 0;
-    padding-left: 0;
-    overflow: hidden;
-
-    &.disabled {
-      opacity: 0.5;
-    }
-
-    .details {
+.popover-class {
+  .popover-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    .popover-description {
       text-align: left;
-      padding-top: .5em;
-      padding-right: .1em;
+      color: #ffffff;
+    }
+    .popover-title {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 0.5em;
+      .popover-title-text {
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #ffffff;
+      }
+      .popover-mana {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+        align-items: center;
+        .popover-svg-icon {
+          width: 1.3em;
+        }
+        .popover-mana-count {
+          font-weight: bold;
+          color: #50b5e9;
+          font-size: 1.1em;
+        }
+      }
+    }
+  }
+}
+
+.spell-container {
+  white-space: initial;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-left: -2rem;
+  margin-right: -1.5rem;
+  margin-top: -0.14rem;
+  box-sizing: content-box;
+  .spell-border{
+    padding: 2px;
+    background-color: transparent;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+
+    &:hover:not(.disabled){
+      background-color: #925cf3;
+      cursor: pointer;
+      box-shadow: 0 4px 4px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
+    }
+    .spell {
+      background: #ffffff;
+      border-radius: 4px;
+      color: #4e4a57;
+      padding-right: 0;
+      padding-left: 0;
+      overflow: hidden;
+      width: 4.5rem;
+      height: 4.6rem;
+      box-shadow: 0 1px 3px 0 rgba(26, 24, 29, 0.12),
+        0 1px 2px 0 rgba(26, 24, 29, 0.24);
+      &:hover {
+        box-shadow: 0 3px 6px 0 rgba(26, 24, 29, 0.16),
+          0 3px 6px 0 rgba(26, 24, 29, 0.24);
+      }
+      &.disabled {
+        background-color: #34313a;
+        box-shadow: none;
+
+        .mana {
+          background-color: rgba(26, 24, 29, 0.5);
+        }
+
+        .level {
+          color: #ffffff;
+          font-weight: normal;
+        }
+      }
+
+      .details {
+        text-align: center;
+        height: 3.1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .img {
+          display: block;
+          text-align: center;
+        }
+      }
 
       .img {
-        display: inline-block;
+        margin: 0 auto;
       }
 
-      span {
-        display: inline-block;
-        width: 50%;
-        padding-bottom: .7em;
-        vertical-align: bottom;
+      .mana-text {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.2rem;
+        text-align: center;
+        color: #033f5e;
+
+        .svg-icon {
+          width: 16px;
+          height: 16px;
+        }
       }
+
+      .mana {
+        background-color: rgba(70, 167, 217, 0.15);
+        color: #2995cd;
+        font-weight: bold;
+        height: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+  }
+}
+
+.spell-container-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 2em;
+  margin-right: -1em;
+  margin-left: -1em;
+}
+
+.spell-skills {
+  flex: 0 0 auto;
+  width: 6em;
+}
+
+.dragInfo {
+  position: absolute;
+  left: -500px;
+  z-index: 1080;
+  color: #e1e0e3;
+  border: none;
+  background-color: transparent;
+  box-shadow: transparent;
+
+  .spell {
+    width: 5.9rem;
+    height: 8rem;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    .spell-border {
+      width: 59px;
+      height: 62px;
+      background: #46a7d9;
+      border-radius: 4px;
+      box-sizing: border-box;
+      transform: rotate(45deg);
+      padding: 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .mana {
+        width: 58px;
+        height: 58px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        .img {
+          background-color: #f9f9f9;
+          display: block;
+          text-align: center;
+          transform: rotate(-45deg);
+        }
+      }
+    }
+    .details {
+      width: 100%;
+      height: 2em;
+      border-radius: 4px;
+      background-color: rgba(52, 49, 58, 0.96);
 
       .notes {
-        font-weight: normal;
-        color: #686274;
+        font-size: 13px;
+        color: #ffffff;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-    }
-
-    .img {
-      margin: 0 auto;
-    }
-
-    .mana-text {
-      margin-bottom: .2em;
-      padding-top: 1.1em;
-
-      div {
-        display: inline-block;
-        vertical-align: bottom;
-      }
-
-      .svg-icon {
-        width: 16px;
-        height: 16px;
-        margin-right: .2em;
-      }
-    }
-
-    .mana {
-      padding: .2em;
-      background-color: rgba(70, 167, 217, 0.24);
-      color: #2995cd;
-      font-weight: bold;
-      text-align: center;
     }
   }
 
-  .dragInfo {
-    position: absolute;
-    left: -500px;
-    z-index: 1080;
-
-    .spell {
-      border-radius: 1000px;
-      min-width: 224px;
-      height: 52px;
-      font-size: 12px;
-      padding-left: .5em;
-
-      .title {
-        font-weight: bold;
-        margin-bottom: .2em;
-      }
-    }
-
-    .mana {
-      border-radius: 0 1000px 1000px 0;
-    }
-
-    &.mouse {
-      position: fixed;
-      pointer-events: none
-    }
-    .potion-icon {
-      margin: 0 auto;
-    }
-    .popover {
-      position: inherit;
-      width: 100px;
-    }
+  &.mouse {
+    position: fixed;
+    pointer-events: none;
   }
+  .potion-icon {
+    margin: 0 auto;
+  }
+  .popover {
+    position: inherit;
+    width: 100px;
+  }
+}
 </style>
 
 <script>
-import spells, { stealthBuffsToAdd } from '@/../../common/script/content/spells';
+import spells, {
+  stealthBuffsToAdd,
+} from '@/../../common/script/content/spells';
 
 import { mapState, mapGetters } from '@/libs/store';
 import notifications from '@/mixins/notifications';
@@ -216,7 +337,11 @@ import Drawer from '@/components/ui/drawer';
 import MouseMoveDirective from '@/directives/mouseposition.directive';
 
 import mana from '@/assets/svg/mana.svg';
-import { CONSTANTS, setLocalSetting, getLocalSetting } from '@/libs/userlocalManager';
+import {
+  CONSTANTS,
+  setLocalSetting,
+  getLocalSetting,
+} from '@/libs/userlocalManager';
 
 export default {
   components: {
@@ -260,10 +385,8 @@ export default {
       this.$store.state.spellOptions.spellDrawOpen = newState;
 
       if (newState) {
-        setLocalSetting(
-          CONSTANTS.keyConstants.SPELL_DRAWER_STATE,
-          CONSTANTS.drawerStateValues.DRAWER_OPEN,
-        );
+        setLocalSetting(CONSTANTS.keyConstants.SPELL_DRAWER_STATE,
+          CONSTANTS.drawerStateValues.DRAWER_OPEN);
         return;
       }
 
@@ -274,9 +397,12 @@ export default {
     },
     spellDisabled (skill) {
       const incompleteDailiesDue = this.getUnfilteredTaskList('daily').filter(daily => !daily.completed && daily.isDue).length;
-      if (skill === 'frost' && this.user.stats.buffs.streaks) return true;
-      if (skill === 'stealth' && this.user.stats.buffs.stealth >= incompleteDailiesDue) return true;
-
+      if (skill === 'frost' && this.user.stats.buffs.streaks) {
+        return true;
+      }
+      if (skill === 'stealth' && this.user.stats.buffs.stealth >= incompleteDailiesDue) {
+        return true;
+      }
       return false;
     },
     skillNotes (skill) {

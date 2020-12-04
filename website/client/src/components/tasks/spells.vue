@@ -1,78 +1,115 @@
 <template>
   <div v-if="user.stats.lvl > 10">
-    <div v-if="potionClickMode" ref="clickPotionInfo" class="dragInfo mouse">
+    <div
+      v-if="potionClickMode"
+      ref="clickPotionInfo"
+      class="dragInfo mouse"
+    >
       <div class="spell">
-        <div class='spell-border'>
+        <div class="spell-border">
           <div class="mana">
-            <div class="img" :class="`shop_${spell.key} shop-sprite item-img`"></div>
+            <div
+              class="img"
+              :class="`shop_${spell.key} shop-sprite item-img`"
+            ></div>
           </div>
         </div>
         <div class="details">
+          <!-- @TODO make that translatable-->
           <p class="notes">
             {{ `Select a ${spell.target}` }}
           </p>
-          <!-- @TODO make that translatable-->
         </div>
       </div>
     </div>
     <div class="drawer-wrapper">
       <drawer
-      v-if="user.stats.class && !user.preferences.disableClasses"
-      v-mousePosition="30"
-      :title="handleDrawerClassText(user.stats.class)"
-      :open-status="openStatus"
-      @mouseMoved="mouseMoved($event)"
-      @toggled="drawerToggled">
+        v-if="user.stats.class && !user.preferences.disableClasses"
+        v-mousePosition="30"
+        :title="drawerTitle"
+        :open-status="openStatus"
+        @mouseMoved="mouseMoved($event)"
+        @toggled="drawerToggled"
+      >
         <div slot="drawer-slider">
           <div class="spell-container">
-            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
             <div
-            v-for="(skill, key) in spells[user.stats.class]"
-            :key="key"
-            :id="`spell_${skill.key}`"
-            @click="!spellDisabled(key) ? castStart(skill) : null">
+              v-for="(skill, key) in spells[user.stats.class]"
+              :id="`spell_${skill.key}`"
+              :key="key"
+              @click="!spellDisabled(key) ? castStart(skill) : null"
+            >
               <b-popover
-              :target="`spell_${skill.key}`"
-              triggers="hover"
-              placement="top"
-              custom-class="popover-class">
+                :target="`spell_${skill.key}`"
+                triggers="hover"
+                placement="top"
+                custom-class="popover-class"
+              >
                 <div class="popover-wrapper">
                   <div class="popover-title">
-                    <div class="popover-title-text">{{skill.text()}}</div>
+                    <div class="popover-title-text">
+                      {{ skill.text() }}
+                    </div>
                     <div class="popover-mana">
-                      <div class="popover-svg-icon" v-html="icons.mana"></div>
-                      <div class="popover-mana-count">{{skill.mana}}</div>
+                      <div
+                        v-once
+                        class="popover-svg-icon"
+                        v-html="icons.mana"
+                      ></div>
+                      <div class="popover-mana-count">
+                        {{ skill.mana }}
+                      </div>
                     </div>
                   </div>
                   <div class="popover-description">
-                    {{skillNotes(skill)}}
+                    {{ skillNotes(skill) }}
                   </div>
                 </div>
               </b-popover>
-              <!-- eslint-enable vue/no-use-v-if-with-v-for -->
               <div
-              class='spell-border'
-              :class="{ disabled: spellDisabled(key) || user.stats.lvl<skill.lvl }">
+                class="spell-border"
+                :class="{ disabled: spellDisabled(key) || user.stats.lvl < skill.lvl }"
+              >
                 <div
-                class="spell"
-                :class="{ disabled: spellDisabled(key) || user.stats.lvl<skill.lvl }">
+                  class="spell"
+                >
                   <div class="details">
-                    <div class="img" :class="`shop_${skill.key} shop-sprite item-img`"></div>
+                    <div
+                      class="img"
+                      :class="`shop_${skill.key} shop-sprite item-img`"
+                    ></div>
                   </div>
-                  <div class="mana" v-if="user.stats.lvl<skill.lvl">
+                  <div
+                    v-if="user.stats.lvl < skill.lvl"
+                    class="mana"
+                  >
                     <div class="mana-text level">
                       <div>Level {{ skill.lvl }}</div>
                     </div>
                   </div>
-                  <div class="mana" v-else-if="spellDisabled(key)===true">
+                  <div
+                    v-else-if="spellDisabled(key) === true"
+                    class="mana"
+                  >
                     <div class="mana-text">
-                      <div class="svg-icon" v-html="icons.mana"></div>
+                      <div
+                        v-once
+                        class="svg-icon"
+                        v-html="icons.mana"
+                      ></div>
                       <div>{{ skill.mana }}</div>
                     </div>
                   </div>
-                  <div class="mana" v-else>
+                  <div
+                    v-else
+                    class="mana"
+                  >
                     <div class="mana-text">
-                      <div class="svg-icon" v-html="icons.mana"></div>
+                      <div
+                        v-once
+                        class="svg-icon"
+                        v-html="icons.mana"
+                      ></div>
                       <div>{{ skill.mana }}</div>
                     </div>
                   </div>
@@ -87,6 +124,8 @@
 </template>
 
 <style lang="scss" scoped>
+@import '~@/assets/scss/colors.scss';
+
 .drawer-wrapper {
   width: 100vw;
   position: fixed;
@@ -108,30 +147,36 @@
     display: flex;
     flex-direction: column;
     gap: 0.1em;
+
     .popover-description {
       text-align: left;
-      color: #ffffff;
+      color: $white;
     }
+
     .popover-title {
       display: flex;
       justify-content: space-between;
       padding-bottom: 0.5em;
+
       .popover-title-text {
         font-weight: bold;
         font-size: 1.1em;
-        color: #ffffff;
+        color: $white;
       }
+
       .popover-mana {
         display: flex;
         gap: 2px;
         justify-content: center;
         align-items: center;
+
         .popover-svg-icon {
           width: 1.3em;
         }
+
         .popover-mana-count {
           font-weight: bold;
-          color: #50b5e9;
+          color: $blue-100;
           font-size: 1.1em;
         }
       }
@@ -148,6 +193,7 @@
   margin-right: -1.5rem;
   margin-top: -0.14rem;
   box-sizing: content-box;
+
   .spell-border {
     padding: 2px;
     background-color: transparent;
@@ -155,15 +201,32 @@
     margin-bottom: 1rem;
 
     &:hover:not(.disabled) {
-      background-color: #925cf3;
+      background-color: $purple-400;
       cursor: pointer;
       box-shadow: 0 4px 4px 0 rgba(26, 24, 29, 0.16),
         0 1px 4px 0 rgba(26, 24, 29, 0.12);
     }
+
+    &.disabled {
+      .spell {
+        background-color: $gray-10;
+        box-shadow: none !important;
+
+        .mana {
+          background-color: rgba(26, 24, 29, 0.5);
+        }
+
+        .level {
+          color: $white;
+          font-weight: normal;
+        }
+      }
+    }
+
     .spell {
-      background: #ffffff;
+      background: $white;
       border-radius: 4px;
-      color: #4e4a57;
+      color: $gray-50;
       padding-right: 0;
       padding-left: 0;
       overflow: hidden;
@@ -171,22 +234,10 @@
       height: 4.6rem;
       box-shadow: 0 1px 3px 0 rgba(26, 24, 29, 0.12),
         0 1px 2px 0 rgba(26, 24, 29, 0.24);
+
       &:hover {
         box-shadow: 0 3px 6px 0 rgba(26, 24, 29, 0.16),
           0 3px 6px 0 rgba(26, 24, 29, 0.24);
-      }
-      &.disabled {
-        background-color: #34313a;
-        box-shadow: none;
-
-        .mana {
-          background-color: rgba(26, 24, 29, 0.5);
-        }
-
-        .level {
-          color: #ffffff;
-          font-weight: normal;
-        }
       }
 
       .details {
@@ -212,7 +263,7 @@
         align-items: center;
         gap: 0.2rem;
         text-align: center;
-        color: #033f5e;
+        color: $blue-1;
 
         .svg-icon {
           width: 16px;
@@ -222,7 +273,7 @@
 
       .mana {
         background-color: rgba(70, 167, 217, 0.15);
-        color: #2995cd;
+        color: $blue-10;
         font-weight: bold;
         height: 1.5rem;
         display: flex;
@@ -251,7 +302,7 @@
   position: absolute;
   left: -500px;
   z-index: 1080;
-  color: #e1e0e3;
+  color: $gray-500;
   border: none;
   background-color: transparent;
   box-shadow: transparent;
@@ -269,10 +320,11 @@
     align-items: center;
     flex-direction: column;
     gap: 1.5rem;
+
     .spell-border {
       width: 59px;
       height: 62px;
-      background: #46a7d9;
+      background: $blue-50;
       border-radius: 4px;
       box-sizing: border-box;
       transform: rotate(45deg);
@@ -280,24 +332,28 @@
       display: flex;
       justify-content: center;
       align-items: center;
+
       .mana {
         width: 58px;
         height: 58px;
-        background-color: #f9f9f9;
+        background-color: $gray-700;
         border-radius: 4px;
         display: flex;
         justify-content: center;
         align-items: center;
         overflow: hidden;
+
         .img {
-          background-color: #f9f9f9;
+          background-color: $gray-700;
           display: block;
           text-align: center;
           transform: rotate(-45deg);
         }
       }
     }
+
     .details {
+      margin-top: 1rem;
       width: 100%;
       height: 2em;
       border-radius: 4px;
@@ -305,7 +361,7 @@
 
       .notes {
         font-size: 13px;
-        color: #ffffff;
+        color: $white;
         text-align: center;
         height: 100%;
         display: flex;
@@ -319,9 +375,11 @@
     position: fixed;
     pointer-events: none;
   }
+
   .potion-icon {
     margin: 0 auto;
   }
+
   .popover {
     position: inherit;
     width: 100px;
@@ -330,10 +388,11 @@
 </style>
 
 <script>
+import throttle from 'lodash/throttle';
+
 import spells, {
   stealthBuffsToAdd,
 } from '@/../../common/script/content/spells';
-
 import { mapState, mapGetters } from '@/libs/store';
 import notifications from '@/mixins/notifications';
 import spellsMixin from '@/mixins/spells';
@@ -375,6 +434,10 @@ export default {
     openStatus () {
       return this.$store.state.spellOptions.spellDrawOpen ? 1 : 0;
     },
+    drawerTitle () {
+      const classStr = this.$t(this.user.stats.class);
+      return this.$t('skillsTitle', { classStr });
+    },
   },
   mounted () {
     // @TODO: should we abstract the drawer state/local
@@ -400,13 +463,19 @@ export default {
       );
     },
     spellDisabled (skill) {
-      const incompleteDailiesDue = this.getUnfilteredTaskList('daily').filter(daily => !daily.completed && daily.isDue).length;
+      const incompleteDailiesDue = this
+        .getUnfilteredTaskList('daily')
+        .filter(daily => !daily.completed && daily.isDue)
+        .length;
+
       if (skill === 'frost' && this.user.stats.buffs.streaks) {
         return true;
       }
+
       if (skill === 'stealth' && this.user.stats.buffs.stealth >= incompleteDailiesDue) {
         return true;
       }
+
       return false;
     },
     skillNotes (skill) {
@@ -426,24 +495,14 @@ export default {
       return notes;
     },
     // @TODO: Move to mouse move component??
-    mouseMoved ($event) {
-      // @TODO: throttle
+    mouseMoved: throttle(function mouseMoved ($event) {
       if (this.potionClickMode) {
         this.$refs.clickPotionInfo.style.left = `${$event.x + 20}px`;
         this.$refs.clickPotionInfo.style.top = `${$event.y + 20}px`;
       } else {
         this.lastMouseMoveEvent = $event;
       }
-    },
-    handleDrawerClassText (drawerClass) {
-      let drawerClassString = drawerClass.toLowerCase();
-      if (drawerClassString === 'wizard') {
-        drawerClassString = 'Mage Skills';
-      } else {
-        drawerClassString = `${drawerClass.charAt(0).toUpperCase()}${drawerClass.slice(1)} Skills`;
-      }
-      return drawerClassString;
-    },
+    }, 10),
   },
 };
 </script>

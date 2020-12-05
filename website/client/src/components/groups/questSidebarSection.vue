@@ -10,7 +10,7 @@
           v-html="icons.questIcon"
         ></div>
         <h4 v-once>
-          {{ $t('youAreNotOnQuest') }}
+          {{ $t('yourPartyIsNotOnQuest') }}
         </h4>
         <p v-once>
           {{ $t('questDescription') }}
@@ -20,7 +20,7 @@
           class="btn btn-secondary"
           @click="openStartQuestModal()"
         >
-          {{ $t('startAQuest') }}
+          {{ $t('selectQuest') }}
         </button>
       </div>
     </div>
@@ -28,7 +28,7 @@
       v-if="user.party.quest && user.party.quest.RSVPNeeded"
       class="quest-active-section quest-invite"
     >
-      <span>{{ $t('wouldYouParticipate') }}</span>
+      <span class="participate">{{ $t('wouldYouParticipate') }}</span>
       <div class="buttons">
         <button
           class="btn btn-primary accept"
@@ -44,29 +44,6 @@
         </button>
       </div>
     </div>
-    <div
-      v-if="onPendingQuest && !onActiveQuest"
-      class="quest-active-section quest-pending-section"
-    >
-      <div class="titles">
-        <strong>{{ questData.text() }} </strong>
-        <p class="members">{{ acceptedCount }} / {{ group.memberCount }} Members accepted</p>
-      </div>
-      <div class="quest-icon">
-        <div
-          class="quest"
-          :class="`inventory_quest_scroll_${questData.key}`"
-        ></div>
-      </div>
-    </div>
-    <div v-if="onPendingQuest || onActiveQuest">
-      <button
-        class="btn btn-secondary full-width mb-1"
-        @click="openQuestDetails()"
-      >
-        {{ $t('details') }}
-      </button>
-    </div>
     <div v-if="userIsQuestLeader && !onActiveQuest">
       <button
         class="btn btn-success full-width"
@@ -74,14 +51,6 @@
       >
         {{ $t('startQuest') }}
       </button>
-    </div>
-    <div v-if="userIsQuestLeader && !onActiveQuest">
-      <a
-        class="abandon-quest text-center full-width"
-        @click="abandonQuest()"
-      >
-        {{ $t('abandonQuest') }}
-      </a>
     </div>
     <div
       v-if="!onPendingQuest && onActiveQuest"
@@ -92,47 +61,41 @@
           class="quest-boss"
           :class="'quest_' + questData.key"
         ></div>
-        <h3 v-once>
-          {{ questData.text() }}
-        </h3>
         <div class="quest-box">
           <div
             v-if="questData.collect"
             class="collect-info"
           >
-            <div class="row">
-              <div class="col-12">
-                <a
-                  class="float-right"
-                  @click="openParticipantList()"
-                >{{ $t('participantsTitle') }}</a>
-              </div>
-            </div>
             <div
               v-for="(value, key) in questData.collect"
               :key="key"
-              class="row"
+              class="quest-item-row"
             >
-              <div class="col-2">
+              <div class="quest-item-icon">
                 <div :class="'quest_' + questData.key + '_' + key"></div>
               </div>
-              <div class="col-10">
-                <strong>{{ value.text() }}</strong>
+              <div class="quest-item-info">
+                <span class="label quest-label">{{ value.text() }}</span>
                 <div class="grey-progress-bar">
                   <div
                     class="collect-progress-bar"
                     :style="{width: (group.quest.progress.collect[key] / value.count) * 100 + '%'}"
                   ></div>
                 </div>
-                <strong>{{ group.quest.progress.collect[key] }} / {{ value.count }}</strong>
+                <div class="item-progress-row">
+                  <span class="label item-progress">
+                    {{ group.quest.progress.collect[key] }} / {{ value.count }}
+                  </span>
+                  <div
+                    v-if="userIsOnQuest"
+                    class="label item-progress-label"
+                  >
+                    {{ parseFloat(user.party.quest.progress.collectedItems) || 0 }} items found
+                  </div>
+                </div>
               </div>
             </div>
-            <div
-              v-if="userIsOnQuest"
-              class="text-right"
-            >
-              {{ parseFloat(user.party.quest.progress.collectedItems) || 0 }} items found
-            </div>
+
           </div>
           <div
             v-if="questData.boss"
@@ -211,15 +174,53 @@
             </div>
           </div>
         </div>
-        <button
-          v-if="canEditQuest"
-          v-once
-          class="btn btn-secondary"
-          @click="questAbort()"
-        >
-          {{ $t('abort') }}
-        </button>
+
       </div>
+    </div>
+    <div
+      v-if="onPendingQuest || onActiveQuest"
+      class="quest-pending-section"
+    >
+      <div class="titles">
+        <strong>{{ questData.text() }} </strong>
+        <a
+          class="members-invited"
+          @click="openQuestDetails()"
+        >
+          {{ $t('membersAccepted', {accepted: acceptedCount, invited: group.memberCount}) }}
+        </a>
+      </div>
+      <div class="quest-icon">
+        <div
+          class="quest"
+          :class="`inventory_quest_scroll_${questData.key}`"
+        ></div>
+      </div>
+    </div>
+    <div v-if="onPendingQuest || onActiveQuest">
+      <button
+        class="btn btn-secondary full-width mb-1"
+        @click="openQuestDetails()"
+      >
+        {{ $t('details') }}
+      </button>
+    </div>
+    <div v-if="userIsQuestLeader && !onActiveQuest">
+      <a
+        class="abandon-quest text-center full-width"
+        @click="abandonQuest()"
+      >
+        {{ $t('abandonQuest') }}
+      </a>
+    </div>
+    <div v-if="canEditQuest && onActiveQuest">
+     <a
+        v-once
+        class="abandon-quest text-center full-width"
+        @click="questAbort()"
+      >
+        {{ $t('abandonQuest') }}
+      </a>
     </div>
   </sidebar-section>
 </template>
@@ -233,7 +234,7 @@
   }
 
   .quest-boss {
-    margin: 0 auto;
+    margin: 0 auto 1.188rem;
   }
 
   .boss-health-bar {
@@ -256,6 +257,8 @@
     width: 100%;
     height: 15px;
     background-color: #e1e0e3;
+    border-radius: 2px;
+    overflow: hidden;
   }
 
   .collect-progress-bar {
@@ -299,16 +302,24 @@
       line-height: 1.33;
 
       strong {
+        display: block;
         min-height: 1rem;
         font-weight: bold;
+        font-size: 0.75rem;
+        line-height: 1.33;
         color: $gray-100;
-        margin-bottom: 0.25rem  ;
+        margin-bottom: 0.25rem;
       }
 
-      .members {
+      .members-invited {
         min-height: 1rem;
         color: $blue-10;
         margin: 0;
+
+        &:hover, &:focus {
+          color: $blue-10;
+          text-decoration: underline;
+        }
       }
     }
 
@@ -323,16 +334,23 @@
   }
 
   .quest-active-section {
+    margin-bottom: 0.5rem;
+
+    .participate {
+      font-size: 0.75rem;
+      font-weight: bold;
+      line-height: 1.33;
+      color: $white;
+    }
+
     .titles {
-        padding-top: .5em;
+      padding-top: .5em;
     }
 
     .quest-box {
-      background-image: url('~@/assets/svg/for-css/quest-border.svg');
-      background-size: 100% 100%;
-      width: 100%;
-      padding: .5em;
-      margin-bottom: 1em;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      background-color: $white;
 
       a {
         font-family: 'Roboto Condensed', sans-serif;
@@ -346,7 +364,7 @@
       }
     }
 
-    .boss-info, .collect-info {
+    .boss-info {
       width: 90%;
       margin: 0 auto;
       text-align: left;
@@ -356,18 +374,19 @@
   .quest-invite {
     background-color: #2995cd;
     color: #fff;
-    padding: 1em;
     display: flex;
 
-    span {
-      margin-top: .3em;
-      font-size: 14px;
-      font-weight: bold;
+    .participate {
+      margin-top: 0.75rem;
+      margin-bottom: 0.75rem;
+      margin-left: 1rem;
       flex: 1;
     }
 
     .buttons {
-
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      margin-right: 0.5rem;
     }
 
     .accept, .reject {
@@ -397,6 +416,62 @@
     width: 100%;
     display: block;
     margin-top: 1rem;
+
+    &:hover, &:focus {
+      color: $maroon-50;
+      text-decoration: underline;
+    }
+  }
+
+  .quest-item-row {
+    display: flex;
+    margin-bottom: 0.25rem;
+
+    .quest-item-icon {
+      margin-right: 0.813rem;
+      width: 3.5rem;
+      height: 3.5rem;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      align-self: center;
+    }
+
+    .quest-item-info {
+      flex: 1;
+      text-align: left;
+
+      .label {
+        font-size: 0.75rem;
+        line-height: 1.33;
+        color: $gray-100;
+
+        &.quest-label {
+          font-weight: bold;
+          margin-bottom: 0.25rem;
+        }
+      }
+
+      .item-progress-row {
+        margin-top: 0.5rem;
+        display: flex;
+
+        > * {
+          flex: 1;
+        }
+      }
+
+      .item-progress {
+        color: $green-10;
+      }
+
+      .item-progress-label {
+        text-align: right;
+        color: $gray-100;
+      }
+    }
   }
 </style>
 
@@ -411,10 +486,10 @@ import questIcon from '@/assets/svg/quest.svg';
 import questActionsMixin from '@/components/groups/questActions.mixin';
 
 export default {
-  mixins: [questActionsMixin],
   components: {
     sidebarSection,
   },
+  mixins: [questActionsMixin],
   props: ['group'],
   data () {
     return {

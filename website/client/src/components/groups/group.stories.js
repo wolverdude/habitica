@@ -1,6 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { storiesOf } from '@storybook/vue';
 import {
+  collectionQuestLeaderParticipating,
   createStory,
   groupBossQuestParticipating,
   groupCollectionQuestNotStarted, groupCollectionQuestPending,
@@ -27,6 +28,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -54,6 +56,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -81,6 +84,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -124,6 +128,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
           quest: {
             RSVPNeeded: true,
@@ -136,20 +141,26 @@ storiesOf('Group Components|Party/Quest States', module)
   .add('Collection Quest/Quest Owner Participating', () => createStory({
     template: `
       <div class="component-showcase">
-        <right-sidebar :group="group" :is-party="true" :is-member="true" class="col-12"/>
+        <right-sidebar :group="group" :is-party="true" :is-member="true" :is-leader="true" class="col-12"/>
       </div>
     `,
     data () {
       return {
-        group: {
-          quest: {},
-        },
+        group: collectionQuestLeaderParticipating,
       };
     },
     user: {
       data: {
+        _id: '05ca98f4-4706-47b5-8d02-142e6e78ba2e',
         party: {
-
+          quest: {
+            progress: {
+              up: 0,
+              down: 0,
+              collectedItems: 2,
+              collect: {},
+            },
+          },
         },
       },
     },
@@ -170,6 +181,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -190,6 +202,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -212,6 +225,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },
@@ -234,6 +248,7 @@ storiesOf('Group Components|Party/Quest States', module)
     },
     user: {
       data: {
+        _id: 'some-user',
         party: {
 
         },

@@ -1,14 +1,14 @@
 import moment from 'moment';
 import { SEASONAL_SETS } from '../content/constants';
 
-const SHOP_OPEN = moment().isBetween('2020-12-17T08:00-04:00', '2021-01-31T20:00-04:00');
+const SHOP_OPEN = moment().isBetween('2020-12-01T08:00-04:00', '2021-01-31T20:00-04:00');
 
 export default {
   opened: SHOP_OPEN,
 
   currentSeason: SHOP_OPEN ? 'Winter' : 'Closed',
 
-  dateRange: { start: '2020-12-17', end: '2021-01-31' },
+  dateRange: { start: '2020-12-01', end: '2021-01-31' },
 
   availableSets: SHOP_OPEN
     ? [
@@ -25,7 +25,7 @@ export default {
     }
     : {},
 
-  availableSpells: moment().isBetween('2020-12-17T08:00-04:00', '2021-01-31T20:00-04:00')
+  availableSpells: moment().isBetween('2020-12-01T08:00-04:00', '2021-01-31T20:00-04:00')
     ? [
       'snowball',
     ]

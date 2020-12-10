@@ -12,6 +12,7 @@ import { // eslint-disable-line import/no-cycle
 import shared from '../../../../common';
 import { getOneTimePaymentInfo } from './oneTimePayments'; // eslint-disable-line import/no-cycle
 import { checkSubData } from './subscriptions'; // eslint-disable-line import/no-cycle
+import { validateGiftMessage } from '../gems'; // eslint-disable-line import/no-cycle
 
 const BASE_URL = nconf.get('BASE_URL');
 
@@ -33,6 +34,7 @@ export async function createCheckoutSession (options, stripeInc) {
   let type = 'gems';
   if (gift) {
     type = gift.type === 'gems' ? 'gift-gems' : 'gift-sub';
+    validateGiftMessage(gift, user);
   } else if (sub) {
     type = 'subscription';
   }
@@ -74,7 +76,7 @@ export async function createCheckoutSession (options, stripeInc) {
     const {
       amount,
       gemsBlock,
-    } = await getOneTimePaymentInfo(gemsBlockKey, gift, user, stripeApi);
+    } = await getOneTimePaymentInfo(gemsBlockKey, gift, user);
 
     metadata.gemsBlock = gemsBlock ? gemsBlock.key : undefined;
 
@@ -150,7 +152,7 @@ export async function createEditCardCheckoutSession (options, stripeInc) {
 
   if (!subscriptionId) {
     const subscriptions = await stripeApi.subscriptions.list({ customer: customerId });
-    subscriptionId = subscriptions.data[0].id;
+    subscriptionId = subscriptions.data[0] && subscriptions.data[0].id;
   }
 
   if (!subscriptionId) throw new NotAuthorized(shared.i18n.t('missingSubscription'));

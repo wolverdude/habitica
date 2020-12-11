@@ -17,7 +17,6 @@ import {
   BadRequest,
   NotFound,
 } from '../../errors';
-import promoSubscription from '../promoSubscription'; // eslint-disable-line import/no-cycle
 
 export async function checkSubData (sub, isGroup = false, coupon) {
   if (!sub || !sub.canSubscribe) throw new BadRequest(shared.i18n.t('missingSubscriptionCode'));
@@ -51,14 +50,6 @@ export async function applySubscription (session) {
     groupId,
     subscriptionId,
   });
-
-  if (metadata.gift) {
-    promoSubscription({
-      user,
-      gift: metadata.gift,
-      paymentMethod: `${stripeConstants.PAYMENT_METHOD} (Gift)`,
-    });
-  }
 }
 
 export async function handlePaymentMethodChange (session, stripeInc) {

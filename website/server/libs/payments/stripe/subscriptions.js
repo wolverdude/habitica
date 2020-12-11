@@ -17,7 +17,7 @@ import {
   BadRequest,
   NotFound,
 } from '../../errors';
-import promoSubscription from './promoSubscription'; // eslint-disable-line import/no-cycle
+import promoSubscription from '../promoSubscription'; // eslint-disable-line import/no-cycle
 
 export async function checkSubData (sub, isGroup = false, coupon) {
   if (!sub || !sub.canSubscribe) throw new BadRequest(shared.i18n.t('missingSubscriptionCode'));

@@ -44,14 +44,6 @@
         </button>
       </div>
     </div>
-    <div v-if="userIsQuestLeader && !onActiveQuest">
-      <button
-        class="btn btn-success full-width"
-        @click="startQuest()"
-      >
-        {{ $t('startQuest') }}
-      </button>
-    </div>
     <div
       v-if="!onPendingQuest && onActiveQuest"
       class="row quest-active-section"
@@ -206,6 +198,14 @@
       </button>
     </div>
     <div v-if="userIsQuestLeader && !onActiveQuest">
+      <button
+        class="btn btn-success full-width"
+        @click="startQuest()"
+      >
+        {{ $t('startQuest') }}
+      </button>
+    </div>
+    <div v-if="userIsQuestLeader && !onActiveQuest">
       <a
         class="abandon-quest text-center full-width"
         @click="abandonQuest()"
@@ -220,6 +220,15 @@
         @click="questAbort()"
       >
         {{ $t('abandonQuest') }}
+      </a>
+    </div>
+    <div v-if="userIsOnQuest">
+     <a
+        v-once
+        class="abandon-quest text-center full-width"
+        @click="questLeave()"
+      >
+        {{ $t('leaveQuest') }}
       </a>
     </div>
   </sidebar-section>
@@ -372,9 +381,10 @@
   }
 
   .quest-invite {
-    background-color: #2995cd;
-    color: #fff;
+    background-color: $blue-10;
+    color: $white;
     display: flex;
+    border-radius: 2px;
 
     .participate {
       margin-top: 0.75rem;
@@ -390,21 +400,21 @@
     }
 
     .accept, .reject {
-      padding: .2em 1em;
-      font-size: 12px;
-      height: 24px;
+      font-size: 0.75rem;
+      font-weight: bold;
+
+      line-height: 1.33;
+      text-align: center;
+      color: $white;
       border-radius: 2px;
-      box-shadow: 0 2px 2px 0 rgba(26, 24, 29, 0.16), 0 1px 4px 0 rgba(26, 24, 29, 0.12);
     }
 
     .accept {
       background-color: #24cc8f;
-      margin-left: 4em;
-      margin-right: .5em;
+      margin: 0 0.5rem 0 0;
     }
 
     .reject {
-      border-radius: 2px;
       background-color: #f74e52;
     }
   }

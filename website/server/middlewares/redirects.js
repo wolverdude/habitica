@@ -40,7 +40,7 @@ export function forceSSL (req, res, next) {
 
 export function forceHabitica (req, res, next) {
   if (IS_PROD && !IGNORE_REDIRECT && req.hostname !== BASE_URL_HOST) {
-    return res.redirect(301, BASE_URL + req.url);
+    return res.redirect(req.method === 'GET' ? 301 : 308, BASE_URL + req.url);
   }
 
   return next();

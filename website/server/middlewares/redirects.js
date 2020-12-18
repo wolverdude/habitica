@@ -34,12 +34,12 @@ export function forceSSL (req, res, next) {
 
 // Redirect to habitica for non-api urls
 
-/* function nonApiUrl (req) {
+function nonApiUrl (req) {
   return req.originalUrl.search(/\/api\//) === -1;
-} */
+}
 
 export function forceHabitica (req, res, next) {
-  if (IS_PROD && !IGNORE_REDIRECT && req.hostname !== BASE_URL_HOST) {
+  if (IS_PROD && !IGNORE_REDIRECT && req.hostname !== BASE_URL_HOST && nonApiUrl(req) && req.method === 'GET') {
     return res.redirect(301, BASE_URL + req.url);
   }
 

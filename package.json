@@ -1,7 +1,7 @@
 {
   "name": "habitica",
   "description": "A habit tracker app which treats your goals like a Role Playing Game.",
-  "version": "4.175.6",
+  "version": "4.176.0",
   "main": "./website/server/index.js",
   "dependencies": {
     "@babel/core": "^7.12.10",
@@ -20,7 +20,7 @@
     "compression": "^1.7.4",
     "cookie-session": "^1.4.0",
     "coupon-code": "^0.4.5",
-    "csv-stringify": "^5.5.3",
+    "csv-stringify": "^5.6.0",
     "cwait": "^1.1.1",
     "domain-middleware": "~0.1.0",
     "eslint": "^6.8.0",
@@ -37,7 +37,7 @@
     "gulp-nodemon": "^2.5.0",
     "gulp.spritesmith": "^6.9.0",
     "habitica-markdown": "^3.0.0",
-    "helmet": "^4.2.0",
+    "helmet": "^4.3.1",
     "image-size": "^0.9.3",
     "in-app-purchase": "^1.11.3",
     "js2xmlparser": "^4.0.1",
@@ -109,7 +109,7 @@
     "apidoc": "gulp apidoc"
   },
   "devDependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-moment": "^0.1.0",
